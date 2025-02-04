@@ -1,23 +1,35 @@
 input.onButtonPressed(Button.A, function () {
-    basic.showLeds(`
+basic.showLeds(`
         . . . # #
         # # # . #
         # # . . .
         # . # # #
         . # . . .
-        `)
+    `)
 })
-// Initialize Hummingbird
+let distance = 0
+let sound = 1
 hummingbird.startHummingbird()
 basic.showString("Hello!")
-// LED Control Loop
 basic.forever(function () {
-    // Single color LEDs
-    hummingbird.setLED(ThreePort.Two, 100)
+    // Read sensors with correct argument order
+    distance = hummingbird.getSensor(SensorType.Distance, ThreePort.Two)
+    sound = hummingbird.getSensor(SensorType.Sound, ThreePort.One)
+    input.setSoundThreshold(SoundThreshold.Loud, 128)
+    sound += 1
+    // Display sensor values
+    basic.showNumber(distance)
     basic.pause(1000)
-    hummingbird.setLED(ThreePort.Three, 100)
+    basic.showNumber(sound)
     basic.pause(1000)
-    // Tri-LED Green
+    // Control rotation based on distance
+    if (distance < 10) {
+        hummingbird.setRotationServo(FourPort.Three, 50)
+    } else if (distance < 20) {
+        hummingbird.setRotationServo(FourPort.Three, 150)
+    } else {
+        hummingbird.setRotationServo(FourPort.Three, 100)
+    }
     hummingbird.setTriLED(
     TwoPort.One,
     0,
@@ -25,8 +37,6 @@ basic.forever(function () {
     0
     )
     basic.pause(1000)
-    basic.pause(1000)
-    // Tri-LED Red
     hummingbird.setTriLED(
     TwoPort.One,
     100,
@@ -35,15 +45,4 @@ basic.forever(function () {
     )
     basic.pause(100)
     hummingbird.setLED(ThreePort.One, 100)
-})
-// Servo Control Loop - Fixed Rotation Values
-basic.forever(function () {
-    hummingbird.setPositionServo(FourPort.Three, 180)
-    basic.pause(1000)
-    // Rotate one direction
-    hummingbird.setRotationServo(FourPort.Three, 50)
-    basic.pause(2000)
-    // Rotate opposite direction
-    hummingbird.setRotationServo(FourPort.Three, 150)
-    basic.pause(2000)
 })
